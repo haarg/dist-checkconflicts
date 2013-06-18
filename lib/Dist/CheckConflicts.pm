@@ -82,18 +82,21 @@ loaded before or afterwards).
 
 =cut
 
-my $import = Sub::Exporter::build_exporter({
+use Sub::Exporter::Progressive -setup => {
     exports => [ qw(conflicts check_conflicts calculate_conflicts dist) ],
     groups => {
         default => [ qw(conflicts check_conflicts calculate_conflicts dist) ],
     },
-});
+};
 
 my %CONFLICTS;
 my %HAS_CONFLICTS;
 my %DISTS;
 
-sub import {
+my $import = __PACKAGE__->can('import');
+
+no warnings 'redefine';
+*import = sub {
     my $for = caller;
 
     my ($conflicts, $alsos, $dist);
@@ -169,7 +172,7 @@ sub import {
     ];
 
     goto $import;
-}
+};
 
 sub _strip_opt {
     my $opt = shift;
